@@ -1,5 +1,6 @@
 import java.util.Scanner;
 
+
 abstract class BankCard {
     protected double balance;
 
@@ -19,6 +20,7 @@ abstract class BankCard {
 
     public abstract String getAvailableFunds();
 }
+
 
 class DebitCard extends BankCard {
     public DebitCard(double balance) {
@@ -41,6 +43,7 @@ class DebitCard extends BankCard {
         deposit(amount);
     }
 }
+
 
 class CreditCard extends BankCard {
     private double creditLimit;
@@ -76,27 +79,89 @@ class CreditCard extends BankCard {
     }
 }
 
+
+// Производный класс от DebitCard с бонусной программой
+class DebitCardWithBonus extends DebitCard {
+    private int bonusPoints;
+
+    public DebitCardWithBonus(double balance) {
+        super(balance);
+        this.bonusPoints = 0;
+    }
+
+    public int getBonusPoints() {
+        return bonusPoints;
+    }
+
+    public void addBonusPoints(int points) {
+        bonusPoints += points;
+    }
+}
+
+// Производный класс от CreditCard с бонусной программой
+class CreditCardWithRewards extends CreditCard {
+    private String rewardsProgram;
+
+    public CreditCardWithRewards(double balance, double creditLimit, String rewardsProgram) {
+        super(balance, creditLimit);
+        this.rewardsProgram = rewardsProgram;
+    }
+
+    public String getRewardsProgram() {
+        return rewardsProgram;
+    }
+}
+
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        // Создаем кредитную карту с лимитом 10000
-        CreditCard creditCard = new CreditCard(0, 10000);
+        System.out.println("Choose card type:");
+        System.out.println("1. Debit Card");
+        System.out.println("2. Credit Card");
+        int choice = scanner.nextInt();
 
-        // Интерактивное взаимодействие с пользователем
-        System.out.println("Credit card balance: " + creditCard.getAvailableFunds());
-        System.out.print("Enter amount to top up: ");
-        double topUpAmount = scanner.nextDouble();
-        creditCard.topUp(topUpAmount);
-        System.out.println("After topping up: " + creditCard.getAvailableFunds());
-
-        System.out.print("Enter amount to pay: ");
-        double paymentAmount = scanner.nextDouble();
-        boolean paymentResult = creditCard.pay(paymentAmount);
-        if (paymentResult) {
-            System.out.println("Payment successful. Updated balance: " + creditCard.getAvailableFunds());
+        BankCard selectedCard;
+        if (choice == 1) {
+            selectedCard = new DebitCard(0);
         } else {
-            System.out.println("Insufficient funds.");
+            selectedCard = new CreditCard(0, 10000);
+        }
+
+        boolean exit = false;
+        while (!exit) {
+            System.out.println("Choose an action:");
+            System.out.println("1. Top up balance");
+            System.out.println("2. View balance");
+            if (selectedCard instanceof CreditCard) {
+                System.out.println("3. View credit limit");
+            }
+            System.out.println("0. Exit");
+
+            int action = scanner.nextInt();
+            switch (action) {
+                case 1:
+                    System.out.print("Enter amount to top up: ");
+                    double topUpAmount = scanner.nextDouble();
+                    selectedCard.deposit(topUpAmount);
+                    System.out.println("Balance topped up successfully.");
+                    break;
+                case 2:
+                    System.out.println("Current balance: " + selectedCard.getAvailableFunds());
+                    break;
+                case 3:
+                    if (selectedCard instanceof CreditCard) {
+                        CreditCard creditCard = (CreditCard) selectedCard;
+                        System.out.println("Current credit limit: " + creditCard.getAvailableFunds());
+                    }
+                    break;
+                case 0:
+                    exit = true;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+                    break;
+            }
         }
 
         scanner.close();
